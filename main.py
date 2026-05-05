@@ -1,81 +1,11 @@
 import random
+from classes.estagiario import Estagiario
+from classes.freelancer import Freelancer
+from classes.funcionario_clt import FuncionarioCLT
+from classes.funcionario_personalizado import FuncionarioPersonalizado
 
 nomes_base = ["Ana", "Bruno", "Carla", "Diego", "Elena", "Fabio", "Gisele", "Hugo", "Iara", "Junior"]
 sobrenomes = ["Silva", "Santos", "Oliveira", "Souza", "Pereira", "Lima", "Ferreira", "Costa"]
-
-class Funcionario:
-    proximo_id = 1
-
-    def __init__(self, nome, cpf, salario_base):
-        self.__id = Funcionario.proximo_id
-        Funcionario.proximo_id += 1
-        self.__nome = nome
-        self.__cpf = cpf
-        self.__salario_base = salario_base
-        self.__validar()
-
-    def __validar(self):
-        if self.__cpf == "":
-            print("CPF não pode ser vazio.")
-            self.__cpf = "Não informado"
-        if self.__salario_base < 0:
-            print("Salário não pode ser negativo.")
-            self.__salario_base = 0
-
-    def get_id(self): return self.__id
-    def get_nome(self): return self.__nome
-    def get_cpf(self): return self.__cpf
-    def get_salario_base(self): return self.__salario_base
-
-    def set_nome(self, valor): self.__nome = valor
-    def set_cpf(self, valor):
-        if valor != "": self.__cpf = valor
-    def set_salario_base(self, valor):
-        if valor >= 0: self.__salario_base = valor
-
-    def exibir_dados(self):
-        print(f"ID: {self.get_id()}\nNome: {self.get_nome()}\nCPF: {self.get_cpf()}\nBase: R$ {self.get_salario_base():.2f}")
-
-    def calcular_salario(self):
-        return self.get_salario_base()
-
-
-class FuncionarioCLT(Funcionario):
-    def __init__(self, nome, cpf, salario_base, bonus):
-        super().__init__(nome, cpf, salario_base)
-        self.__bonus = bonus
-
-    def calcular_salario(self):
-        return self.get_salario_base() + self.__bonus
-
-    def exibir_dados(self):
-        super().exibir_dados()
-        print(f"Tipo: CLT\nBônus: R$ {self.__bonus:.2f}")
-
-class Freelancer(Funcionario):
-    def __init__(self, nome, cpf, valor_projeto, qtd_projetos):
-        super().__init__(nome, cpf, 0)
-        self.__valor_projeto = valor_projeto
-        self.__qtd_projetos = qtd_projetos
-
-    def calcular_salario(self):
-        return self.__valor_projeto * self.__qtd_projetos
-
-    def exibir_dados(self):
-        super().exibir_dados()
-        print(f"Tipo: Freelancer\nValor do Projeto: R$ {self.__valor_projeto:.2f}\nQtd de Projetos: {self.__qtd_projetos}")
-
-class Estagiario(Funcionario):
-    def __init__(self, nome, cpf, salario_base, desconto):
-        super().__init__(nome, cpf, salario_base)
-        self.__desconto = desconto
-
-    def calcular_salario(self):
-        return self.get_salario_base() - self.__desconto
-
-    def exibir_dados(self):
-        super().exibir_dados()
-        print(f"Tipo: Estagiário\nDesconto: R$ {self.__desconto:.2f}")
 
 def gerar_nome_aleatorio():
     return f"{random.choice(nomes_base)} {random.choice(sobrenomes)}"
@@ -96,9 +26,9 @@ def cadastrar():
     print("=" * 30)
     print("\t--- Cadastrar ---")    
     print("=" * 30)
-    tipo = input("1-CLT | 2-Freelancer | 3-Estagiário: ")
-    nome = input("Digite o Nome: ").title()
-    cpf = input("Digite o CPF: ")
+    tipo = input("1-CLT\n2-Freelancer\n3-Estagiário\n4-Outro tipo:\nDigite a opção: ")
+    nome = input("Digite o Nome do Funcionário: ").title()
+    cpf = input("Digite o CPF do Funcionário: ")
 
     if tipo == "1":
         salario_base = float(input("Salário Base: "))
@@ -106,12 +36,25 @@ def cadastrar():
         funcionarios.append(FuncionarioCLT(nome, cpf, salario_base, bonus))
     elif tipo == "2":
         valor_projeto = float(input("Valor por Projeto: "))
-        qtd_projetos = int(input("Qtd de Projetos: "))
+        qtd_projetos = int(input("Quantidade de Projetos: "))
         funcionarios.append(Freelancer(nome, cpf, valor_projeto, qtd_projetos))
     elif tipo == "3":
         salario_base = float(input("Salário Base: "))
         desconto = float(input("Desconto: "))
         funcionarios.append(Estagiario(nome, cpf, salario_base, desconto))
+    elif tipo == "4":
+        função = input("Digite a função do funcionário: ").title()
+        salario_base = float(input("Salário Base: "))
+        bonus = float(input("Bonus: "))
+        funcionarios.append(
+            FuncionarioPersonalizado(
+                nome,
+                cpf,
+                função,
+                salario_base,
+                bonus
+            )
+        )
     else:
         print("Opção inválida.")
         return
@@ -134,7 +77,7 @@ def calcular_salarios():
     print("\t--- Salários Finais ---")
     print("=" * 30)
     for f in funcionarios:
-        print(f"{f.get_nome()}: R$ {f.calcular_salario():.2f}")
+        print(f"{f.get_nome()} ({f.get_tipo()}): R$ {f.calcular_salario():.2f}")
     print("=" * 30)
 
 def calcular_folha():
